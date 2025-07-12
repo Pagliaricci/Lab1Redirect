@@ -7,22 +7,11 @@
     (async () => {
       const params = new URLSearchParams(window.location.search);
       const courseId = params.get("courseId");
-  
+      const userId = params.get("userId"); // 🚨 lo tomamos directamente de la URL
+
       // Guardar datos de Mercado Pago si querés usarlos después
       sessionStorage.setItem("mp-payment-data", JSON.stringify(Object.fromEntries(params.entries())));
-  
-      // Obtener userId desde backend usando cookie de sesión
-      let userId = null;
-      try {
-        const meRes = await fetch("http://localhost:8081/users/me", {
-          credentials: "include", // importante: incluye cookies
-        });
-        const meData = await meRes.json();
-        userId = meData.userID;
-      } catch (err) {
-        console.error("Error obteniendo usuario logueado:", err);
-      }
-  
+
       // Hacer POST a /course/subscribe
       if (userId && courseId) {
         try {
@@ -31,7 +20,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            credentials: "include", // si el backend valida sesión en esta request también
+            credentials: "include", // si usás sesión para otras validaciones
             body: JSON.stringify({
               userId,
               routineId: courseId,
@@ -41,9 +30,9 @@
           console.error("Error al suscribir al curso:", err);
         }
       }
-  
-      // Esperar 20 segundos antes de redirigir
-      await new Promise(resolve => setTimeout(resolve, 20000));
+
+      // Esperar 5 segundos antes de redirigir
+      await new Promise(resolve => setTimeout(resolve, 5000));
       
       // Redirigir a la app principal
       window.location.href = "http://localhost:5173/subscribe-to-course";
