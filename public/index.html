@@ -1,15 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Redirigiendo...</title>
+  <meta charset="UTF-8" />
+  <title>Procesando pago...</title>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    sessionStorage.setItem("mp-payment-data", JSON.stringify(Object.fromEntries(params.entries())));
-    window.location.href = "http://localhost:5173/subscribe-to-course";
+    (async () => {
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get("userId");
+      const courseId = params.get("courseId");
+
+      // Guardar datos de Mercado Pago si querés usarlos después en el frontend
+      sessionStorage.setItem("mp-payment-data", JSON.stringify(Object.fromEntries(params.entries())));
+
+      // Hacer POST a backend
+      if (userId && courseId) {
+        try {
+          await fetch("http://localhost:8081/course/subscribe", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              userId,
+              routineId: courseId,
+            }),
+          });
+        } catch (err) {
+          console.error("Error al suscribir al curso:", err);
+        }
+      }
+
+      // Redirigir a la app
+      window.location.href = "http://localhost:5173/subscribe-to-course";
+    })();
   </script>
 </head>
 <body>
-  <h1>Redirigiendo a tu app local...</h1>
+  <h1>Procesando pago y suscripción...</h1>
 </body>
 </html>
