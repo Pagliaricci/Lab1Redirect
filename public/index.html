@@ -42,6 +42,9 @@
         }
       }
   
+      // Esperar 20 segundos antes de redirigir
+      await new Promise(resolve => setTimeout(resolve, 20000));
+      
       // Redirigir a la app principal
       window.location.href = "http://localhost:5173/subscribe-to-course";
     })();
