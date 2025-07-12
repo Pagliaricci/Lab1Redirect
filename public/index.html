@@ -6,13 +6,24 @@
   <script>
     (async () => {
       const params = new URLSearchParams(window.location.search);
-      const userId = params.get("userId");
       const courseId = params.get("courseId");
-
-      // Guardar datos de Mercado Pago si querés usarlos después en el frontend
+  
+      // Guardar datos de Mercado Pago si querés usarlos después
       sessionStorage.setItem("mp-payment-data", JSON.stringify(Object.fromEntries(params.entries())));
-
-      // Hacer POST a backend
+  
+      // Obtener userId desde backend usando cookie de sesión
+      let userId = null;
+      try {
+        const meRes = await fetch("http://localhost:8081/users/me", {
+          credentials: "include", // importante: incluye cookies
+        });
+        const meData = await meRes.json();
+        userId = meData.userID;
+      } catch (err) {
+        console.error("Error obteniendo usuario logueado:", err);
+      }
+  
+      // Hacer POST a /course/subscribe
       if (userId && courseId) {
         try {
           await fetch("http://localhost:8081/course/subscribe", {
@@ -20,6 +31,7 @@
             headers: {
               "Content-Type": "application/json",
             },
+            credentials: "include", // si el backend valida sesión en esta request también
             body: JSON.stringify({
               userId,
               routineId: courseId,
@@ -29,8 +41,8 @@
           console.error("Error al suscribir al curso:", err);
         }
       }
-
-      // Redirigir a la app
+  
+      // Redirigir a la app principal
       window.location.href = "http://localhost:5173/subscribe-to-course";
     })();
   </script>
